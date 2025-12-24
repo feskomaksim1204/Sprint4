@@ -7,10 +7,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 
 public class OrderPage {
-
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final JavascriptExecutor js;
@@ -21,21 +21,27 @@ public class OrderPage {
         this.js = (JavascriptExecutor) driver;
     }
 
+    // Локаторы первой страницы
     private final By nameField = By.xpath("//input[@placeholder='* Имя']");
     private final By surnameField = By.xpath("//input[@placeholder='* Фамилия']");
     private final By addressField = By.xpath("//input[@placeholder='* Адрес: куда привезти заказ']");
     private final By metroField = By.xpath("//input[@placeholder='* Станция метро']");
     private final By phoneField = By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']");
     private final By nextButton = By.xpath("//button[text()='Далее']");
+
+    // Локаторы второй страницы
     private final By dateField = By.xpath("//input[@placeholder='* Когда привезти самокат']");
     private final By rentalPeriodField = By.className("Dropdown-placeholder");
     private final By colorBlackCheckbox = By.id("black");
     private final By colorGreyCheckbox = By.id("grey");
     private final By commentField = By.xpath("//input[@placeholder='Комментарий для курьера']");
-    private final By orderButton = By.xpath("//div[contains(@class, 'Order_Buttons')]//button[text()='Заказать']");
-    private final By confirmOrderButton = By.xpath("//div[contains(@class, 'Order_Modal')]//button[text()='Да']");
-    private final By orderSuccessModal = By.xpath("//div[contains(@class, 'Order_ModalHeader')]");
+    private final By orderButton = By.xpath("//button[text()='Заказать' and contains(@class, 'Button_Middle__1CSJM')]");
 
+    // Локаторы модального окна - уточнённый локатор
+    private final By confirmOrderButton = By.xpath("//button[text()='Да']");
+    private final By orderSuccessModal = By.xpath("//div[contains(@class, 'Order_ModalHeader') and contains(text(), 'Заказ оформлен')]");
+
+    // Методы для заполнения первой страницы
     public void fillFirstPage(String name, String surname, String address, String metroStation, String phone) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(nameField));
 
@@ -56,33 +62,18 @@ public class OrderPage {
         wait.until(ExpectedConditions.visibilityOfElementLocated(dateField));
     }
 
+    // Методы для заполнения второй страницы
     public void fillSecondPage(String date, String period, String color, String comment) {
-        driver.findElement(dateField).sendKeys(date);
-        driver.findElement(dateField).sendKeys(Keys.ESCAPE);
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        WebElement dateElement = driver.findElement(dateField);
+        dateElement.clear();
+        dateElement.sendKeys(date);
+        dateElement.sendKeys(Keys.ESCAPE);
 
         driver.findElement(rentalPeriodField).click();
 
         int optionIndex = 1;
-        if (period.contains("сутки") || period.equals("сутки")) {
-            optionIndex = 1;
-        } else if (period.contains("двое суток")) {
+        if (period.contains("двое суток")) {
             optionIndex = 2;
-        } else if (period.contains("трое суток")) {
-            optionIndex = 3;
-        } else if (period.contains("четверо суток")) {
-            optionIndex = 4;
-        } else if (period.contains("пятеро суток")) {
-            optionIndex = 5;
-        } else if (period.contains("шестеро суток")) {
-            optionIndex = 6;
-        } else if (period.contains("семеро суток")) {
-            optionIndex = 7;
         }
 
         String optionXpath = "(//div[contains(@class, 'Dropdown-option')])[" + optionIndex + "]";
@@ -103,45 +94,14 @@ public class OrderPage {
     }
 
     public void confirmOrder() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(orderSuccessModal));
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
+        // БЕЗ try/catch - если кнопка "Да" не появится, тест должен упасть
         WebElement confirmButton = wait.until(ExpectedConditions.elementToBeClickable(confirmOrderButton));
         confirmButton.click();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 
     public boolean isOrderSuccessDisplayed() {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(orderSuccessModal));
-            WebElement modal = driver.findElement(orderSuccessModal);
-            String text = modal.getText();
-
-            return modal.isDisplayed() &&
-                    !text.isEmpty() &&
-                    (text.toLowerCase().contains("заказ") ||
-                            text.toLowerCase().contains("оформлен"));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public String getSuccessMessage() {
-        try {
-            WebElement modal = driver.findElement(orderSuccessModal);
-            return modal.getText();
-        } catch (Exception e) {
-            return "";
-        }
+        // БЕЗ try/catch - используем явную проверку
+        WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(orderSuccessModal));
+        return modal.isDisplayed();
     }
 }

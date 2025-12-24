@@ -1,7 +1,6 @@
 package tests;
 
 public class TestData {
-
     public static class User {
         public static final String NAME = "Максим";
         public static final String SURNAME = "Максимов";

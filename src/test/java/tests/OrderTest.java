@@ -1,17 +1,16 @@
 package tests;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import pages.MainPage;
 import pages.OrderPage;
-import tests.TestData;
 import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class OrderTest extends BaseTest {
-
     private final String testName;
     private final boolean useTopButton;
     private final String[] userData;
@@ -63,33 +62,40 @@ public class OrderTest extends BaseTest {
         MainPage mainPage = new MainPage(driver);
         OrderPage orderPage = new OrderPage(driver);
 
-        mainPage.acceptCookies();
-
+        // Шаг 1: Нажать на кнопку "Заказать"
         if (useTopButton) {
             mainPage.clickOrderButtonTop();
         } else {
-            mainPage.scrollAndClickOrderButtonBottom();
+            mainPage.clickOrderButtonBottom();
         }
 
+        // Шаг 2: Заполнить первую страницу заказа
         orderPage.fillFirstPage(
-                userData[0],
-                userData[1],
-                userData[2],
-                userData[3],
-                userData[4]
+                userData[0], // имя
+                userData[1], // фамилия
+                userData[2], // адрес
+                userData[3], // станция метро
+                userData[4]  // телефон
         );
+
+        // Шаг 3: Перейти на вторую страницу
         orderPage.clickNextButton();
 
+        // Шаг 4: Заполнить вторую страницу заказа
         orderPage.fillSecondPage(
-                userData[5],
-                userData[6],
-                userData[7],
-                userData[8]
+                userData[5], // дата
+                userData[6], // срок аренды
+                userData[7], // цвет
+                userData[8]  // комментарий
         );
 
+        // Шаг 5: Нажать кнопку "Заказать"
         orderPage.clickOrderButton();
+
+        // Шаг 6: Подтвердить заказ
         orderPage.confirmOrder();
 
+        // Шаг 7: Проверить успешное оформление
         Assert.assertTrue("Должно появиться окно успешного оформления заказа",
                 orderPage.isOrderSuccessDisplayed());
     }
