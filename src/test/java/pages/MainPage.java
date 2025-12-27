@@ -33,7 +33,7 @@ public class MainPage {
             WebElement cookie = wait.until(ExpectedConditions.elementToBeClickable(cookieButton));
             cookie.click();
         } catch (Exception e) {
-            // Игнорируем если кнопки нет - это необязательное событие
+            // Игнорируем если кнопки нет
         }
     }
 
@@ -57,10 +57,7 @@ public class MainPage {
     }
 
     public void scrollToAccordionSection() {
-        // Просто прокручиваем вниз и ждем появления кнопок аккордеона
         js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-
-        // Вместо Thread.sleep - ждем, пока кнопки аккордеона станут видны
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(accordionButtons));
     }
 
@@ -69,16 +66,10 @@ public class MainPage {
         if (index < buttons.size()) {
             WebElement button = buttons.get(index);
 
-            // Прокручиваем к аккордеону
             scrollToAccordionSection();
-
-            // Ждем, пока кнопка станет кликабельной
             wait.until(ExpectedConditions.elementToBeClickable(button));
-
-            // Кликаем обычным способом
             button.click();
 
-            // Ждем появления панели с ответом
             String panelXpath = "(//div[@class='accordion__item'])[" + (index + 1) + "]//div[@class='accordion__panel']";
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(panelXpath)));
         }

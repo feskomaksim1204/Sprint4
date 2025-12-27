@@ -37,7 +37,7 @@ public class OrderPage {
     private final By commentField = By.xpath("//input[@placeholder='Комментарий для курьера']");
     private final By orderButton = By.xpath("//button[text()='Заказать' and contains(@class, 'Button_Middle__1CSJM')]");
 
-    // Локаторы модального окна - уточнённый локатор
+    // Локаторы модального окна
     private final By confirmOrderButton = By.xpath("//button[text()='Да']");
     private final By orderSuccessModal = By.xpath("//div[contains(@class, 'Order_ModalHeader') and contains(text(), 'Заказ оформлен')]");
 
@@ -94,13 +94,11 @@ public class OrderPage {
     }
 
     public void confirmOrder() {
-        // БЕЗ try/catch - если кнопка "Да" не появится, тест должен упасть
         WebElement confirmButton = wait.until(ExpectedConditions.elementToBeClickable(confirmOrderButton));
         confirmButton.click();
     }
 
     public boolean isOrderSuccessDisplayed() {
-        // БЕЗ try/catch - используем явную проверку
         WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(orderSuccessModal));
         return modal.isDisplayed();
     }
